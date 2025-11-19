@@ -1,0 +1,316 @@
+{
+  "info": {
+    "name": "GetEmpStatus API",
+    "description": "API testing collection for GetEmpStatus backend service. Tests employee status retrieval with various scenarios including success cases, validation errors, and business rule violations.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "12345678"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        },
+        "description": "Check if the API server is running"
+      },
+      "response": []
+    },
+    {
+      "name": "1. Success - Active User (NAT1001)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"NationalNumber\": \"NAT1001\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/GetEmpStatus",
+          "host": ["{{base_url}}"],
+          "path": ["api", "GetEmpStatus"]
+        },
+        "description": "Test successful request for active user with sufficient salary data (12 months). Should return status GREEN/ORANGE/RED based on average salary."
+      },
+      "response": []
+    },
+    {
+      "name": "2. Success - Active User (NAT1002)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"NationalNumber\": \"NAT1002\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/GetEmpStatus",
+          "host": ["{{base_url}}"],
+          "path": ["api", "GetEmpStatus"]
+        },
+        "description": "Test successful request for active user with excellent salary (10 months). Expected status: GREEN."
+      },
+      "response": []
+    },
+    {
+      "name": "3. Error 406 - Inactive User (NAT1003)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"NationalNumber\": \"NAT1003\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/GetEmpStatus",
+          "host": ["{{base_url}}"],
+          "path": ["api", "GetEmpStatus"]
+        },
+        "description": "Test inactive user scenario. Should return 406 Not Acceptable with message 'User is not active'."
+      },
+      "response": []
+    },
+    {
+      "name": "4. Error 422 - Insufficient Data (NAT1005)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"NationalNumber\": \"NAT1005\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/GetEmpStatus",
+          "host": ["{{base_url}}"],
+          "path": ["api", "GetEmpStatus"]
+        },
+        "description": "Test insufficient salary data (only 2 months). Should return 422 Unprocessable Entity with message about minimum 3 records required."
+      },
+      "response": []
+    },
+    {
+      "name": "5. Error 404 - User Not Found",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"NationalNumber\": \"NAT9999\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/GetEmpStatus",
+          "host": ["{{base_url}}"],
+          "path": ["api", "GetEmpStatus"]
+        },
+        "description": "Test non-existent user. Should return 404 Not Found with message 'User with NationalNumber not found'."
+      },
+      "response": []
+    },
+    {
+      "name": "6. Error 400 - Invalid Format",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"NationalNumber\": \"INVALID123\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/GetEmpStatus",
+          "host": ["{{base_url}}"],
+          "path": ["api", "GetEmpStatus"]
+        },
+        "description": "Test invalid national number format. Should return 400 Bad Request with message about expected format (NAT1001)."
+      },
+      "response": []
+    },
+    {
+      "name": "7. Error 400 - Missing NationalNumber",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"SomeOtherField\": \"value\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/GetEmpStatus",
+          "host": ["{{base_url}}"],
+          "path": ["api", "GetEmpStatus"]
+        },
+        "description": "Test missing NationalNumber field. Should return 400 Bad Request."
+      },
+      "response": []
+    },
+    {
+      "name": "8. Error 400 - Empty Body",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/GetEmpStatus",
+          "host": ["{{base_url}}"],
+          "path": ["api", "GetEmpStatus"]
+        },
+        "description": "Test empty request body. Should return 400 Bad Request."
+      },
+      "response": []
+    },
+    {
+      "name": "9. Error 400 - Wrong Content-Type",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/plain"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "NationalNumber=NAT1001"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/GetEmpStatus",
+          "host": ["{{base_url}}"],
+          "path": ["api", "GetEmpStatus"]
+        },
+        "description": "Test wrong Content-Type header. Should return 400 Bad Request."
+      },
+      "response": []
+    },
+    {
+      "name": "10. Error 404 - Invalid Route",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"NationalNumber\": \"NAT1001\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/InvalidEndpoint",
+          "host": ["{{base_url}}"],
+          "path": ["api", "InvalidEndpoint"]
+        },
+        "description": "Test invalid API endpoint. Should return 404 Not Found."
+      },
+      "response": []
+    },
+    {
+      "name": "11. With JWT Token (Success)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{jwt_token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"NationalNumber\": \"NAT1001\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/GetEmpStatus",
+          "host": ["{{base_url}}"],
+          "path": ["api", "GetEmpStatus"]
+        },
+        "description": "Test request with valid JWT token. Should return 200 OK with employee data."
+      },
+      "response": []
+    },
+    {
+      "name": "12. Cache Test - Second Request (Same User)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"NationalNumber\": \"NAT1001\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/GetEmpStatus",
+          "host": ["{{base_url}}"],
+          "path": ["api", "GetEmpStatus"]
+        },
+        "description": "Test cache functionality. Run this immediately after request #1. Should be significantly faster (10-20ms vs 150-300ms) due to cache hit."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "your_jwt_token_here",
+      "type": "string"
+    }
+  ]
+}
