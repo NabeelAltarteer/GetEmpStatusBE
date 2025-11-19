@@ -19,11 +19,26 @@ export class CacheHandler {
 
             this.client = createClient({
                 url: redisUrl,
+                socket: {
+                    reconnectStrategy: (retries) => {
+                        if (retries > 3) {
+                            Logger.warn('Redis connection failed after 3 retries, giving up.');
+                            return false; // Stop retrying
+                        }
+                        return Math.min(retries * 100, 1000); // Wait up to 1s
+                    }
+                }
             });
 
             this.client.on('error', (err) => {
-                Logger.error('Redis Client Error', { error: err.message });
-                this.isConnected = false;
+                // Only log if we are still trying to connect or if it's a new error
+                if (this.isConnected) {
+                    Logger.error('Redis Client Error', { error: err.message || err });
+                    this.isConnected = false;
+                } else {
+                    // Suppress repeated errors during reconnection attempts unless debugging
+                    Logger.debug('Redis Client Error (during connection)', { error: err.message || err });
+                }
             });
 
             this.client.on('connect', () => {
@@ -39,7 +54,7 @@ export class CacheHandler {
             await this.client.connect();
             Logger.info('Cache Handler initialized successfully');
         } catch (error) {
-            Logger.error('Failed to connect to Redis', { error: (error as Error).message });
+            Logger.warn('Failed to connect to Redis - running without cache', { error: (error as Error).message });
             this.isConnected = false;
             // Don't throw - allow app to run without cache
         }

@@ -58,10 +58,15 @@ const testDatabaseConnection = async () => {
 };
 
 // Initialize cache connection
+// Initialize cache connection
 const initializeCache = async () => {
     try {
         await cacheHandler.connect();
-        Logger.info('✅ Cache connection initialized');
+        if (cacheHandler.isAvailable()) {
+            Logger.info('✅ Cache connection initialized');
+        } else {
+            Logger.warn('⚠️  Cache not available - running in fallback mode');
+        }
     } catch (error) {
         Logger.warn('⚠️  Cache connection failed - running without cache', { error });
         // Don't exit - app can run without cache

@@ -75,10 +75,11 @@ export class EmployeeService {
         const empInfo = new EmpInfo(
             user.id,
             user.username,
-            user.national_number,
+            user.nationalNumber || user.national_number,
             user.email,
             user.phone,
-            user.is_active
+            // Handle potential casing differences and ensure boolean type
+            !!(user.isActive !== undefined ? user.isActive : user.is_active)
         );
 
         // Set salary data
